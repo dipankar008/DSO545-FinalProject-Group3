@@ -35,7 +35,7 @@ ui = shinyUI(
   
   #plotOutput(outputId = "map")
   fluidRow(
-    plotOutput(outputId = "map")
+    plotOutput(outputId = "map", width = "120%", height = "500px")
     ),
   fluidRow(
     splitLayout(cellWidths = c("70%", "30%"), plotOutput(outputId = "graph"), tableOutput(outputId = "table"))
@@ -51,7 +51,7 @@ server <- function(input, output) {
 
     data %>%
       filter(Country ==  input$try) %>%
-      ggplot(aes(x= as.factor(Year), y = Happiness.Rank, fill = as.factor(Year))) +
+      ggplot(aes(x= as.factor(Year), y = Happiness.Score, fill = as.factor(Year))) +
       geom_col(position = position_dodge())
 
   })
