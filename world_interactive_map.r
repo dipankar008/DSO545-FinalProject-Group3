@@ -59,3 +59,4 @@ whr_east_asia_2015 %>%
                   opacity = .8)
 
 
+save(whr_geo,file="WHR_Geo.Rda")
