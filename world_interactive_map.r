@@ -74,9 +74,10 @@ whr_asia_2015 %>%
        addCircleMarkers(stroke = FALSE, 
                         group = "Government Influence", 
                         fillOpacity = 4, radius=8,
-                        popup = ~Govt_influence,
+                        #popup = ~Govt_influence,
+                        label = ~Govt_influence,
                         color = ~factpal_ea(Govt_influence)) %>%
-       addLegend("topleft", pal = factpal_ea, values = whr_east_asia_2015$Govt_influence, 
+       addLegend("topleft", pal = factpal_ea, values = whr_asia_2015$Govt_influence, 
                   title = "Government/Corruption Influence", 
                   opacity = .8) %>%
        addLayersControl(
