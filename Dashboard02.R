@@ -16,16 +16,7 @@ ui = shinyUI(
   
   
   fluidRow(
-    # column(3,
-    #        h4("Diamonds Explorer"),
-    #        sliderInput('sampleSize', 'Sample Size', 
-    #                    min=1, max=nrow(dataset), value=min(1000, nrow(dataset)), 
-    #                    step=500, round=0),
-    #        br(),
-    #        checkboxInput('jitter', 'Jitter'),
-    #        checkboxInput('smooth', 'Smooth')
-    # ),
-    column(3,
+        column(3,
     
            helpText("Shows different parameters related with happiness for the selected country"),
            selectizeInput(inputId = "try", 
@@ -55,16 +46,13 @@ server <- function(input, output) {
       geom_col(position = position_dodge())
 
   })
-  
+ 
   output$table <- renderTable({
     data2 %>%
       filter(Economy == input$try) %>%
       select(Parameter,Rank)
       
   }) 
-  
-  
-  
   
   output$map <- renderPlot({
     data(wrld_simpl)

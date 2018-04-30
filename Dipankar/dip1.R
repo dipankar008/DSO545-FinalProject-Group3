@@ -62,9 +62,12 @@ WHR2017 <- WHR2017[,c(1,13,2,3,12,4:7,9,8,10,11)]
 
 
 WHR <- rbind(WHR2015,WHR2016,WHR2017)
+WHR <- WHR[complete.cases(WHR),]
 WHR$Year <- factor(WHR$Year)
 WHR <- WHR[,c(1,2,13,3:12)]
 colnames(WHR2016) == colnames(WHR2017)
+
+
 
 write.csv(WHR,"WHR.csv")
 
@@ -72,6 +75,67 @@ WHR %>%
   filter(Region == "Australia and New Zealand") %>%
 ggplot(aes(x= Country, y = Happiness.Rank, group = Year, fill = Year)) +
   geom_col(position = position_dodge()) 
+
+happy_score <- WHR %>%
+  select(1,2,3,5) %>%
+  mutate(Year = gsub("20","X20",Year)) %>%
+  spread(key = Year, value = Happiness.Score, convert = F )
+  
+
+happy_score <- happy_score[complete.cases(happy_score),]
+
+happy_score<- happy_score %>% 
+  mutate(diff = happy_score$X2017  - happy_score$X2015) %>%
+  arrange(-diff) 
+
+happy_score_top <- happy_score %>% 
+  top_n(6)
+happy_score_bot <- happy_score %>% 
+    top_n(-6)
+
+happy_TopBot<-rbind(happy_score_bot,happy_score_top)
+
+write.csv(happy_score,"happy_score_TopBot.csv")
+
+WHR_2 <- WHR %>%
+  mutate(Comment = NA)
+
+for (x in 1:nrow(WHR_2)) {
+  for(y in 1:nrow(WHR_2)){
+    if(happy_score_bot[x,1] == WHR_2[y,1]){
+      WHR_2[y,14] = "Bottom 6"
+    }
+    y <- y+1
+  }
+  x<- x+1
+}
+
+for (x in 1:nrow(WHR_2)) {
+  for(y in 1:nrow(WHR_2)){
+    if(happy_score_top[x,1] == WHR_2[y,1]){
+      WHR_2[y,14] = "Top 6"
+    }
+    y <- y+1
+  }
+  x<- x+1
+}
+
+WHR_2 <- WHR_2 %>%
+  filter(!is.na(Comment))
+
+write.csv(WHR_2,"WHR_TopBot.csv")
+
+WHR_2 %>%
+  gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
+  filter(Comment == "Top 6") %>%
+  ggplot(aes(x=Type, y= Score, group = Year, fill = Year)) +
+  geom_col(position = position_dodge()) +
+  coord_flip() + facet_wrap(~Country) +
+  geom_text(aes(label = Happiness.Rank), position = position_dodge(width = 1))
+  
+  
+
+
 
 ##################################################################################################
 
@@ -83,14 +147,14 @@ ggplot(aes(x= Country, y = Happiness.Rank, group = Year, fill = Year)) +
 easeofbiz <- read.csv("EaseOfDoingBusiness.csv")
 easeofbiz$Region <- NA
 
-for (x in 1:nrow(easeofbiz)) {
-  for(y in 1:nrow(easeofbiz)){
-    if(as.character(Regions[x,1])==as.character(easeofbiz[y,1])){
-      easeofbiz[y,13] = as.character(Regions[x,2])
+for (a in 1:nrow(easeofbiz)) {
+  for(b in 1:nrow(easeofbiz)){
+    if(as.character(Regions[a,1]) == as.character(easeofbiz[b,1])){
+      easeofbiz[b,13] = as.character(Regions[b,2])
     }
-    y <- y+1
+    b <- b+1
   }
-  x<- x+1
+  a<- a+1
 }
 
 easeofbiz$Region <- factor(easeofbiz$Region)
