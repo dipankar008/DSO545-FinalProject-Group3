@@ -89,6 +89,14 @@ whr_geo$Region = as.character(whr_geo$Region)
 
 
 colnames(whr_geo)[colnames(whr_geo) == "Trust..Government.Corruption."] = "Government_Corruption"
+colnames(whr_geo)[colnames(whr_geo) == "Economy..GDP.per.Capita."] = "GDP_per_Capita"
+
+colnames(whr_geo)
+
+
+####################################################################################################
+####################################################################################################
+
 
 ## Corruption and Happiness relation : 2015
 corrup_2015 = whr_geo %>%
@@ -159,7 +167,7 @@ corrup_2016 = whr_geo %>%
 
 
 ## 2017 : Corruption index for 2017 
-whr_geo %>%
+corrup_2017 = whr_geo %>%
   filter(Happiness.Rank <= 30) %>%
   arrange(Happiness.Rank) %>%
   filter(Year == 2017) %>% 
@@ -191,4 +199,111 @@ whr_geo %>%
     segment.color = 'gray50',
     segment.colour="black") 
 
+## display all 3 years on same 
 
+multiplot(corrup_2015,corrup_2016,corrup_2017,cols=2)
+
+
+
+############################################################################################################
+#########################  GDP per Capita ##################################################################
+###########################################################################################################
+
+
+gdp_2015 = whr_geo %>%
+  filter(Happiness.Rank <= 30) %>%
+  arrange(Happiness.Rank) %>%
+  filter(Year == 2015) %>% 
+  ggplot() +
+  ## happiness
+  geom_point(aes(x=Happiness.Score, 
+                 y=factor(desc(Happiness.Rank)), 
+                 group=1),
+             size=2, 
+             color="red") +
+  ## corruption
+  geom_point(aes(x=GDP_per_Capita*7, 
+                 y=factor(desc(Happiness.Rank)), group=1),
+             size=2, 
+             color="blue") +
+  scale_x_continuous(breaks = seq(0,17,by = 0.5) , 
+                     labels = seq(0,17,by=0.5),sec.axis = sec_axis(~.*1, 
+                                                                    name = "GDP per Capita",
+                                                                    labels = round(seq(0,17,by=0.5)/7,digit=2),
+                                                                    breaks = seq(0,17,by =0.5))) +
+  ggtitle("Happiness Score and 'GDP per Capita' Comparition with Rank-2015") +
+  xlab("Happiness Score")+
+  ylab("Happiness Rank") +
+  ## Country name
+  geom_label_repel(
+    aes(GDP_per_Capita*7, factor(desc(Happiness.Rank)), label = Country),
+    box.padding = 0.30, 
+    point.padding = 0.3,
+    segment.color = 'grey50') 
+
+
+gdp_2016 = whr_geo %>%
+  filter(Happiness.Rank <= 30) %>%
+  arrange(Happiness.Rank) %>%
+  filter(Year == 2016) %>% 
+  ggplot() +
+  ## happiness
+  geom_point(aes(x=Happiness.Score, 
+                 y=factor(desc(Happiness.Rank)), 
+                 group=1),
+             size=2, 
+             color="red") +
+  ## GDP per Capita
+  geom_point(aes(x=GDP_per_Capita*7, 
+                 y=factor(desc(Happiness.Rank)), group=1),
+             size=2, 
+             color="blue") +
+  scale_x_continuous(breaks = seq(0,17,by = 0.5) , 
+                     labels = seq(0,17,by=0.5),sec.axis = sec_axis(~.*1, 
+                                                                   name = "GDP per Capita",
+                                                                   labels = round(seq(0,17,by=0.5)/7,digit=2),
+                                                                   breaks = seq(0,17,by =0.5))) +
+  ggtitle("Happiness Score and 'GDP per Capita' Comparition with Rank-2016") +
+  xlab("Happiness Score")+
+  ylab("Happiness Rank") +
+  ## Country name
+  geom_label_repel(
+    aes(GDP_per_Capita*7, factor(desc(Happiness.Rank)), label = Country),
+    box.padding = 0.30, 
+    point.padding = 0.3,
+    segment.color = 'grey50') 
+
+gdp_2017 = whr_geo %>%
+  filter(Happiness.Rank <= 30) %>%
+  arrange(Happiness.Rank) %>%
+  filter(Year == 2017) %>% 
+  ggplot() +
+  ## happiness
+  geom_point(aes(x=Happiness.Score, 
+                 y=factor(desc(Happiness.Rank)), 
+                 group=1),
+             size=2, 
+             color="red") +
+  ## GDP per Capita
+  geom_point(aes(x=GDP_per_Capita*7, 
+                 y=factor(desc(Happiness.Rank)), group=1),
+             size=2, 
+             color="blue") +
+  scale_x_continuous(breaks = seq(0,17,by = 0.5) , 
+                     labels = seq(0,17,by=0.5),sec.axis = sec_axis(~.*1, 
+                                                                   name = "GDP per Capita",
+                                                                   labels = round(seq(0,17,by=0.5)/7,digit=2),
+                                                                   breaks = seq(0,17,by =0.5))) +
+  ggtitle("Happiness Score and 'GDP per Capita' Comparition with Rank-2017") +
+  xlab("Happiness Score")+
+  ylab("Happiness Rank") +
+  ## Country name
+  geom_label_repel(
+    aes(GDP_per_Capita*7, factor(desc(Happiness.Rank)), label = Country),
+    box.padding = 0.30, 
+    point.padding = 0.3,
+    segment.color = 'grey50') 
+
+## display all 3 years on same 
+
+multiplot(gdp_2015,gdp_2016,gdp_2017,cols=2)
