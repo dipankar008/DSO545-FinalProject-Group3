@@ -81,12 +81,14 @@ whr_asia_2015 = whr_asia_2015 %>%
                                         "Average", 
                                         "High")))
 
-factpal_a = colorFactor(viridis(5), whr_asia_2015$Govt_influence)
-#factpal_f = colorNumeric(viridis(10, option = "plasma"), 
-#                         whr_asia_2015$Freedom_influence)
+factpal_a = colorFactor(viridis(5), 
+                        whr_asia_2015$Govt_influence)
 
 factpal_f =  colorFactor(c("darkorange","red", "steelblue"), 
                          whr_asia_2015$Freedom_influence)
+
+factpal_g = colorNumeric(viridis(10, option = "plasma"), 
+                         whr_asia_2015$Generosity)
 
 #pal = colorNumeric(c("red", "green", "blue"), 1:10)
 
@@ -98,10 +100,11 @@ whr_asia_2015 %>%
        leaflet() %>% 
        setView(lon, lat , zoom = 4) %>%
        addProviderTiles("Stamen.TonerLite") %>%
-       addCircleMarkers(stroke = FALSE, 
+       
+       ####Govt Influence
+       addCircleMarkers(stroke = TRUE, 
                         group = "Government Influence", 
                         fillOpacity = 4, radius=8,
-                        #popup = ~Govt_influence,
                         label =  ~paste(Country,":",
                                        "Govt Influence:",Govt_influence),
                         labelOptions = labelOptions(noHide = F, 
@@ -116,8 +119,8 @@ whr_asia_2015 %>%
                                                     )),
                         color = ~factpal_a(Govt_influence)) %>%
   
-  
-       addCircleMarkers(stroke = FALSE, 
+       ###Freedom Influence
+       addCircleMarkers(stroke = TRUE, 
                         group = "Freedom Influence", 
                         fillOpacity = 4, radius=8,
                         label =  ~paste(Country,":",
@@ -125,32 +128,57 @@ whr_asia_2015 %>%
                         labelOptions = labelOptions(noHide = F, 
                                                textsize = "8px",
                                                style = list(
-                                                 "color" = "red",
+                                                 "color" = "black",
                                                  "font-family" = "serif",
-                                                 "font-style" = "italic",
+                                                 "font-style" = "bold",
                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
                                                  "font-size" = "12px",
                                                  "border-color" = "rgba(0,0,0,0.5)"
                                                )),
-                        color = ~factpal_f(Freedom_influence)) %>%
+                        color = ~factpal_f(Freedom_influence))  %>%
   
-       addLegend("topleft", pal = factpal_a, values = whr_asia_2015$Govt_influence, 
-                  title = "Government Influence", 
-                  opacity = .8) %>%
+       ###Generosity Influence
+       addCircleMarkers(stroke = TRUE, 
+                   group = "Generosity Influence", 
+                   fillOpacity = 4, radius=8,
+                   label =  ~paste(Country,":",
+                                   "Generosity Influence:",Generosity),
+                   labelOptions = labelOptions(noHide = F, 
+                                               textsize = "8px",
+                                               style = list(
+                                                 "color" = "black",
+                                                 "font-family" = "serif",
+                                                 "font-style" = "bold",
+                                                 "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                 "font-size" = "12px",
+                                                 "border-color" = "rgba(0,0,0,0.5)"
+                                               )),
+                   color = ~factpal_g(Generosity))  %>%
   
-      addLegend("topleft", pal = factpal_f, values = whr_asia_2015$Freedom_influence, 
-            title = "Freedom Influence", 
-            opacity = .8)  %>%
+      addLegend("topleft", pal = factpal_a, 
+                values = whr_asia_2015$Govt_influence, 
+                title = "Government Influence", 
+                opacity = .8) %>%
+  
+      addLegend("topleft", pal = factpal_f, 
+                values = whr_asia_2015$Freedom_influence, 
+                title = "Freedom Influence", 
+                opacity = .8)  %>%
+  
+      addLegend("topleft", pal = factpal_g, 
+                values = whr_asia_2015$Generosity, 
+                title = "Generosity Influence", 
+               opacity = .8) %>%
       
-     addLayersControl(
-         baseGroups = c("Government Influence",
-                        "Freedom",
-                        "Generosity",
-                        "Life.Expectancy",
-                        "Family",
-                        "GDP per Capita"
-                        ),
-         options = layersControlOptions(collapsed = FALSE))
+      addLayersControl(
+              baseGroups = c("Government Influence",
+                             "Freedom",
+                             "Generosity"),
+                             #"Life.Expectancy",
+                             #"Family",
+                             #"GDP per Capita"),
+              options = layersControlOptions(collapsed = FALSE))
 
-str(whr_east_asia_2015)
+?legend
 save(whr_geo,file="WHR_Geo.Rda")
+?addCircleMarkers
