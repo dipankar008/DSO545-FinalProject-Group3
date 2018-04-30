@@ -102,7 +102,7 @@ whr_asia_2015 %>%
        addProviderTiles("Stamen.TonerLite") %>%
        
        ####Govt Influence
-       addCircleMarkers(stroke = TRUE, 
+       addCircleMarkers(stroke = FALSE, 
                         group = "Government Influence", 
                         fillOpacity = 4, radius=8,
                         label =  ~paste(Country,":",
@@ -120,7 +120,7 @@ whr_asia_2015 %>%
                         color = ~factpal_a(Govt_influence)) %>%
   
        ###Freedom Influence
-       addCircleMarkers(stroke = TRUE, 
+       addCircleMarkers(stroke = FALSE, 
                         group = "Freedom Influence", 
                         fillOpacity = 4, radius=8,
                         label =  ~paste(Country,":",
@@ -138,7 +138,7 @@ whr_asia_2015 %>%
                         color = ~factpal_f(Freedom_influence))  %>%
   
        ###Generosity Influence
-       addCircleMarkers(stroke = TRUE, 
+       addCircleMarkers(stroke = FALSE, 
                    group = "Generosity Influence", 
                    fillOpacity = 4, radius=8,
                    label =  ~paste(Country,":",
@@ -168,12 +168,12 @@ whr_asia_2015 %>%
       addLegend("topleft", pal = factpal_g, 
                 values = whr_asia_2015$Generosity, 
                 title = "Generosity Influence", 
-               opacity = .8) %>%
+                opacity = .8) %>%
       
       addLayersControl(
               baseGroups = c("Government Influence",
-                             "Freedom",
-                             "Generosity"),
+                             "Freedom Influence",
+                             "Generosity Influence"),
                              #"Life.Expectancy",
                              #"Family",
                              #"GDP per Capita"),
