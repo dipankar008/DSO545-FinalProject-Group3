@@ -19,12 +19,15 @@ whr_geo = whr
 whr_geo$Country = as.character(whr_geo$Country)
 whr_geo$Region = as.character(whr_geo$Region)
 
+##Rename attributes
 colnames(whr_geo)[colnames(whr_geo) == "Trust..Government.Corruption."] = 
-  "Government_Corruption"
+                                        "Government_Corruption"
+colnames(whr_geo)[colnames(whr_geo) == "Health..Life.Expectancy."] = 
+                                        "Life_Expectancy"
 
-whr_geo$Government_Corruption = 
-  round(whr_geo$Government_Corruption, digits=3)
-
+##Round up attributes to 3 digits
+whr_geo$Life_Expectancy = round(whr_geo$Life_Expectancy, digits = 3)
+whr_geo$Government_Corruption = round(whr_geo$Government_Corruption, digits=3)
 whr_geo$Freedom = round(whr_geo$Freedom, digits=3)
 
 ######Add geo codes column
@@ -90,10 +93,9 @@ factpal_f =  colorFactor(c("darkorange","red", "steelblue"),
 factpal_g = colorNumeric(viridis(10, option = "plasma"), 
                          whr_asia_2015$Generosity)
 
-#pal = colorNumeric(c("red", "green", "blue"), 1:10)
+factpal_l = colorNumeric(viridis(10, option = "plasma"), 
+                         whr_geo$Life_Expectancy)
 
-
-?colorFactor
 
 #whr_east_asia_2015 %>%
 whr_asia_2015 %>%
@@ -155,6 +157,25 @@ whr_asia_2015 %>%
                                                )),
                    color = ~factpal_g(Generosity))  %>%
   
+       ###Generosity Influence
+       addCircleMarkers(stroke = FALSE, 
+                   group = "Life Expectancy Influence", 
+                   fillOpacity = 4, radius=8,
+                   label =  ~paste(Country,":",
+                                   "Life Expectancy Influence",Life_Expectancy),
+                   labelOptions = labelOptions(noHide = F, 
+                                               textsize = "8px",
+                                               style = list(
+                                                 "color" = "black",
+                                                 "font-family" = "serif",
+                                                 "font-style" = "bold",
+                                                 "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                 "font-size" = "12px",
+                                                 "border-color" = "rgba(0,0,0,0.5)"
+                                               )),
+                   color = ~factpal_l(Life_Expectancy))  %>%
+  
+      ###Legends for above attributes
       addLegend("topleft", pal = factpal_a, 
                 values = whr_asia_2015$Govt_influence, 
                 title = "Government Influence", 
@@ -170,15 +191,19 @@ whr_asia_2015 %>%
                 title = "Generosity Influence", 
                 opacity = .8) %>%
       
+      addLegend("topleft", pal = factpal_l, 
+                values = whr_asia_2015$Life_Expectancy, 
+                title = "Life Expectancy Influence", 
+                opacity = .8) %>%
+  
       addLayersControl(
               baseGroups = c("Government Influence",
                              "Freedom Influence",
-                             "Generosity Influence"),
-                             #"Life.Expectancy",
+                             "Generosity Influence",
+                             "Life Expectancy Influence"),
                              #"Family",
                              #"GDP per Capita"),
               options = layersControlOptions(collapsed = FALSE))
 
-?legend
 save(whr_geo,file="WHR_Geo.Rda")
 ?addCircleMarkers
