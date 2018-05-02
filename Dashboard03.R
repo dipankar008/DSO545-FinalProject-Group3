@@ -92,8 +92,7 @@ server <- function(input, output) {
       data4 %>%
         filter(Comment == "Top 6") %>%
         ggplot(aes(x=Country, y = Happiness.Score, group = as.factor(Year), fill = as.factor(Year))) +
-        geom_col(position = position_dodge()) +
-        geom_text(aes(label = Happiness.Rank)
+        geom_col(position = position_dodge())
     } else {
       data4 %>%
       gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
