@@ -51,7 +51,15 @@ ui <- shinyUI(
                         selected = NULL)),
             mainPanel( plotOutput(outputId = "Top"))
              )),
-    tabPanel("Component 3"),
+    tabPanel("Bottom 6 : Countries with decreased rankings",
+             sidebarLayout(
+               sidebarPanel( 
+                 radioButtons(inputId = "bottom",
+                              label = "Select the comparison typr", 
+                              choices = c("Rank Comparison", "Parameter Comparision"),
+                              selected = NULL)),
+               mainPanel( plotOutput(outputId = "bot"))
+             )),
     tabPanel("Component 4")
   )
 )
@@ -97,6 +105,22 @@ server <- function(input, output) {
       data4 %>%
       gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
         filter(Comment == "Top 6") %>%
+        ggplot(aes(x=Type, y= Score, group = as.factor(Year), fill = as.factor(Year))) +
+        geom_col(position = position_dodge()) +
+        coord_flip() + facet_wrap(~Country)
+    }
+  })
+  
+  output$bot <- renderPlot({
+    if(input$bottom == "Rank Comparison" ) {
+      data4 %>%
+        filter(Comment == "Bottom 6") %>%
+        ggplot(aes(x=Country, y = Happiness.Score, group = as.factor(Year), fill = as.factor(Year))) +
+        geom_col(position = position_dodge())
+    } else {
+      data4 %>%
+        gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
+        filter(Comment == "Bottom 6") %>%
         ggplot(aes(x=Type, y= Score, group = as.factor(Year), fill = as.factor(Year))) +
         geom_col(position = position_dodge()) +
         coord_flip() + facet_wrap(~Country)
