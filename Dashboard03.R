@@ -56,7 +56,7 @@ ui <- shinyUI(
                sidebarPanel( 
                  radioButtons(inputId = "bottom",
                               label = "Select the comparison typr", 
-                              choices = c("Rank Comparison", "Parameter Comparision"),
+                              choices = c("Rank Comparison", "Parameter Comparision", "Location"),
                               selected = NULL)),
                mainPanel( plotOutput(outputId = "bot"))
              )),
@@ -84,7 +84,7 @@ server <- function(input, output) {
       addTiles() %>% 
       addPolygons(weight=1) %>%
       addEasyButton(easyButton(
-        icon="fa-globe", title="Zoom to Level 1",
+        icon="fa-globe", title="Zoom to Standard",
         onClick=JS("function(btn, map){ map.setZoom(3); }"))) 
   })
   
@@ -117,13 +117,19 @@ server <- function(input, output) {
         filter(Comment == "Bottom 6") %>%
         ggplot(aes(x=Country, y = Happiness.Score, group = as.factor(Year), fill = as.factor(Year))) +
         geom_col(position = position_dodge())
-    } else {
+    } else if(input$bottom == "Parameter Comparison" ){
       data4 %>%
         gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
         filter(Comment == "Bottom 6") %>%
         ggplot(aes(x=Type, y= Score, group = as.factor(Year), fill = as.factor(Year))) +
         geom_col(position = position_dodge()) +
         coord_flip() + facet_wrap(~Country)
+    } else {
+      data4 %>%
+        gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
+        filter(Comment == "Bottom 6") %>%
+        ggplot() +
+        geom_map()
     }
   })
   

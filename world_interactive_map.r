@@ -14,6 +14,7 @@ china = geocode("China")
 lon = china[1][1]
 lat = china[2][1]
 
+
 #####Modify attributes
 whr_geo = whr
 whr_geo$Country = as.character(whr_geo$Country)
