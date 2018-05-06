@@ -78,34 +78,65 @@ for(x in 1:nrow(map.world)){
 }
 
 
-map.world %>%
- filter(region == "North Cpyrus")
-
 write.csv(map.world,"WorldMap.csv")
-WorldMap <- read.csv("Worldmap.csv")
-WorldMap$Country <- WorldMap$region
+WorldMap <- read.csv("Worldmap.csv",stringsAsFactors = F)
+
+
 
 WHR <- read.csv("WHR.csv")
 
-WHR_map <- merge(x = WHR, y = WorldMap, by = c("Country"))
+WHR$Country <- as.character(WHR$Country)
+
+
+WorldMap_res <- WorldMap %>%
+  filter(region %in% unique(WHR$Country))
 
 
 
+unique(WorldMap_res$region)
 
-WHR_map_2015 <- WHR %>%
+WorldMap_res$Country <- WorldMap_res$region
+
+
+WHR_map <- merge(WHR, WorldMap_res, by="Country")
+
+write.csv(WHR_map,"WHR_map_2015.csv")
+write.csv(WorldMap_res, "WorldMap_res.csv")
+
+
+WHR_map %>%
   filter(Year == 2015) %>%
-  merge(WorldMap, by = "Country")
-
-WHR_map_2015 %>%
-  ggplot(aes(x = long, y = lat, group = group, fill = Happiness.Score)) +
-  geom_polygon() +
+  group_by(Country) %>%
+  arrange(order) %>%
+  ungroup() %>%
+  ggplot() +
+  geom_polygon(data = WorldMap,aes(x = long, y = lat, group = group), fill = "pink", alpha = 0.5 ) +
+  geom_polygon(aes(x = long, y = lat, group = group, fill = Happiness.Score),color = "black") +
   scale_fill_gradient2(low = "white", high = "darkred")
 
-ggplot(WorldMap, aes(x= long, y = lat, group = group)) +
-  geom_polygon()
+geo <- read.csv("Geo.csv",stringsAsFactors = F)
+
+ggplot(WorldMap_res, aes(x= long, y = lat)) +
+  geom_polygon(color = "black", fill = "white", aes(group = group)) 
+
+
+  
 
 
 
+sidebarLayout(
+  sidebarPanel( 
+    radioButtons(inputId = "bottom",
+                 label = "Select the comparison typr", 
+                 choices = c("Rank Comparison", "Parameter Comparision", "Location"),
+                 selected = NULL)),
+  mainPanel( plotOutput(outputId = "bot"), 
+             plotOutput(outputId = "bot1"), 
+             leafletOutput(outputId = "bot2"))
+
+
+
+#################################
 
 # #Add the data you want to map countries by to map.world
 # #In this example, I add lengths of country names plus some offset

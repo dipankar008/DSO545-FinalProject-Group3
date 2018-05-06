@@ -6,6 +6,11 @@ library(gdata)
 library(readxl)
 library(tidyr)
 library(rvest)
+library(stringr)
+
+### 1
+### Creating a master file, which will include Happiness parameters of different countries with respect to their year
+### Name of the file will be WHR, short for World Happiness Report
 
 WHR2015 <- read.csv("World Happiness Report 2015.csv")
 WHR2016 <- read.csv("World Happiness Report 2016.csv")
@@ -56,13 +61,24 @@ WHR <- WHR %>%
                           "Belize", "Namibia", "Puerto Rico")))
 
 
-WHR$Country <- as.character(WHR$Country)
+WHR$Country <- str_replace(string = WHR$Country, 
+                           pattern = "Congo (Brazzaville)", 
+                           replacement = "Congo (Republic)")
+
+WHR$Country <- str_replace(string = as.character(WHR$Country), 
+                               pattern = "Congo (Kinshasa)",
+                               replacement = "Congo (Democratic Republic)")
+
+
 write.csv(WHR,"WHR.csv")
 
-WHR %>%
-  filter(Region == "Australia and New Zealand") %>%
-ggplot(aes(x= Country, y = Happiness.Rank, group = Year, fill = Year)) +
-  geom_col(position = position_dodge()) 
+
+### The WHR has been saved in the project directory to be called again in Shiny App and other related fuctions
+
+### 2
+### We want to show Top 6 and Bottom 6 countries who has chnaged the most in terms of there happiness score
+### For above, we will make the subset of 12 countries (Top 6 and Bottom 6) with respect to their year
+
 
 happy_score <- WHR %>%
   select(1,2,3,5) %>%
@@ -82,8 +98,6 @@ happy_score_bot <- happy_score %>%
     top_n(-6)
 
 happy_TopBot<-rbind(happy_score_bot,happy_score_top)
-
-write.csv(happy_score,"happy_score_TopBot.csv")
 
 WHR_2 <- WHR %>%
   mutate(Comment = NA)
@@ -117,14 +131,8 @@ WHR_2 <- WHR_2 %>%
 
 write.csv(WHR_2,"WHR_TopBot.csv")
 
-WHR_2 %>%
-  gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
-  filter(Comment == "Top 6") %>%
-  ggplot(aes(x=Type, y= Score, group = Year, fill = Year)) +
-  geom_col(position = position_dodge()) +
-  coord_flip() + facet_wrap(~Country) +
-  geom_text(aes(label = Happiness.Rank), position = position_dodge(width = 1))
-  
+
+### CSV file WHR_TopBot.csv has been saved to be further called in Shiny App
   
 
 
@@ -137,6 +145,10 @@ WHR_2 %>%
 
 easeofbiz <- read.csv("EaseOfDoingBusiness.csv")
 easeofbiz$Region <- 1
+
+easeofbiz$Economy <- str_replace(string = easeofbiz$Economy,
+                                 pattern = "Congo, Rep.",
+                                 replacement = "Congo (Brazzaville)")
 
 for (a in 1:nrow(Regions)) {
   for(b in 1:nrow(easeofbiz)){
@@ -155,7 +167,7 @@ easeofbiz <- easeofbiz[,c(1,13,2:12)]
 easeofbiz <- easeofbiz %>%
   gather(Ease.of.Doing.Business.Rank:Resolving.Insolvency, key = "Parameter", value = "Rank")
 
-write.csv(easeofbiz,"easeofbiz_update.csv")
+write.csv(easeofbiz,"easeofbiz.csv")
 
 
 #################################################################################################
@@ -173,5 +185,77 @@ Geocodes <- Geocodes[[1]]
 
 write.csv(Geocodes,"Geo.csv")
 
+Geocodes <- read.csv("Geo.csv")
+
+Geocodes <- Geocodes %>%
+  filter(name %in% WHR$Country)
+
+colnames(Geocodes)[which(names(Geocodes) == "name")] <- "Country"
+
+WHR_Geo <- merge(WHR, Geocodes, by = "Country")
+
+write.csv(WHR_Geo,"WHR_Geo")
 
 
+
+###################################################################################################
+
+map.world <- map_data(map="world")
+
+
+map.world$region <- str_replace(string = map.world$region, 
+                                pattern = "^UK", 
+                                replacement = "United Kingdom")
+map.world$region <- str_replace(string = map.world$region, 
+                                pattern = "Democratic Republic of the Congo",
+                                replacement = "Congo (Kinshasa)")
+map.world$region <- str_replace(string = map.world$region, 
+                                pattern = "Republic of Congo" , 
+                                replacement = "Congo (Brazzaville)")
+map.world$region <- str_replace(string = map.world$region, 
+                                pattern = "^USA", 
+                                replacement = "United States")
+map.world$region <- str_replace(string = map.world$region, 
+                                pattern = c("Trinidad","Tobago") , 
+                                replacement = "Trinidad and Tobago")
+map.world$region <- str_replace(string = map.world$region, 
+                                pattern = "North Cyprus", 
+                                replacement = "Cyprus")
+map.world$region <- str_replace(string = map.world$region, 
+                                pattern = "Palestine" , 
+                                replacement = "Palestinian Territories")
+
+
+for(x in 1:nrow(map.world)){
+  if(is.na(map.world[x,6])){
+    next
+  }else if(map.world[x,6] == "Hong Kong"){
+    map.world[x,5] = "Hong Kong"
+  } 
+  x = x+1
+}
+
+for(x in 1:nrow(map.world)){
+  if(is.na(map.world[x,6])){
+    next
+  }else if(map.world[x,6] == "Northern Cyprus"){
+    map.world[x,5] = "North Cyprus"
+  } 
+  x = x+1
+}
+
+
+write.csv(map.world,"WorldMap.csv")
+WorldMap <- read.csv("Worldmap.csv",stringsAsFactors = F)
+
+WHR$Country <- as.character(WHR$Country)
+
+WorldMap_res <- WorldMap %>%
+  filter(region %in% unique(WHR$Country))
+
+colnames(WorldMap_res)[which(names(WorldMap_res) == "region")] <- "Country"
+
+
+WHR_map <- merge(WHR, WorldMap_res, by="Country")
+
+write.csv(WHR_map,"WHR_map.csv")
