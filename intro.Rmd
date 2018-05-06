@@ -1,0 +1,22 @@
+Project Description   
+The happiness scores and rankings use data from the Gallup World Poll. The scores are based on answers to the main life evaluation question asked in the poll. This question, known as the Cantril ladder, asks respondents to think of a ladder with the best possible life for them being a 10 and the worst possible life being a 0 and to rate their own current lives on that scale. The scores are from nationally representative samples for the years 2013-2016 and use the Gallup weights to make the estimates representative. The columns following the happiness score estimate the extent to which each of six factors – contribute to making life evaluations higher in each country than they are in Dystopia, a hypothetical country that has values equal to the world’s lowest national averages for each of the six factors listed below:   
+   1. Economic production   
+   2. Social support   
+   3. Life expectancy   
+   4. Freedom   
+   5. Absence of corruption   
+   6. Generosity 
+   
+Method & Intent   
+It is the aim of this analysis to use various data cleaning techniques, to assist us in our exploratory data analysis, ultimately uncovering interesting insights into a series of questions surrounding the World Happiness Report and the 6 associated factors (listed above). Our intent is to find empirically driven evidence to support our positions, as well as our strategic recommendations. We will use various cleaning techniques and data visualization tools that will include but are not limited to: graphics, summary statistics, heatmaps and dashboards, complete with descriptions, further analysis and screenshots. We will submit our final analysis and findings via github folder and associated link that will be shared via email. The below team members will be cc’d on this communication. 
+
+Team Members   
+* Dipankar Purohit (dipankap@usc.edu)
+* Pavan Gururaj Muddebihal (gururajm@marshall.usc.edu)
+* Shweta Desai (shwetabd@usc.edu)
+* Ann Xiao (ann.xiao.bnu@gmail.com)
+* Nick McCoy (nmccoy@usc.edu)
+
+Data Sources   
+* [Kaggle: World Happiness Report](https://www.kaggle.com/devisangeetha/analysis-viz-on-world-happiness/data)
+* [Geocodes for Countries](https://developers.google.com/public-data/docs/canonical/countries_csv)

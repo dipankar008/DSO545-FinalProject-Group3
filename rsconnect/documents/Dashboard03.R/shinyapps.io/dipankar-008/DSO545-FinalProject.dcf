@@ -5,8 +5,9 @@ account: dipankar-008
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 330670
-bundleId: 1348246
+bundleId: 1359089
 url: https://dipankar-008.shinyapps.io/DSO545-FinalProject/
-when: 1525126940.74494
+when: 1525646406.97371
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: SuperSeeded

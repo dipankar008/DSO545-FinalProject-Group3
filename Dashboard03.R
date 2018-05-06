@@ -5,14 +5,14 @@ library(sp)
 library(maps)
 library(leaflet)
 library(tidyr)
+library(ggplot2)
 
 
-data = read.csv("WHR.csv")
-data2 = read.csv("easeofbiz.csv")
-data3 <- read.csv("geo.csv",stringsAsFactors = F)
-data4 <- read.csv("WHR_TopBot.csv")
-data5 <- read.csv("WHR_map.csv")
-WorldMap <- read.csv("Worldmap.csv")
+WHR <- read.csv("WHR.csv")
+easeofbiz <- read.csv("easeofbiz.csv")
+WHR_TopBot <- read.csv("WHR_TopBot.csv")
+WHR_map <- read.csv("WHR_map.csv")
+WorldMap <- read.csv("WorldMap.csv")
 world <- map("world", fill=TRUE, plot=FALSE)
 world_map <- map2SpatialPolygons(world, sub(":.*$", "", world$names))
 world_map <- SpatialPolygonsDataFrame(world_map,
@@ -29,15 +29,16 @@ ui <- shinyUI(
              
               tabsetPanel(type = "tabs",
                          tabPanel("Introduction",
-                                  textOutput("intro")
+                                  includeMarkdown("intro.Rmd")
                                   ),
                          tabPanel("Heat Map",
                                   sidebarLayout(
-                                  sidebarPanel( radioButtons(inputId = "Ye",
+                                  sidebarPanel(radioButtons(inputId = "Ye",
                                                label = "Select Year",
                                                choices = c("2015","2016","2017"),
-                                               selected = NULL )),
-                                  mainPanel(plotOutput(outputId = "XY")))),
+                                               selected = NULL ),
+                                  helpText("Countries without data are highlighted in grey")),
+                                  mainPanel(plotOutput(outputId = "XY", height = 600)))),
 
                          tabPanel("Parameter Description")
                                   )
@@ -47,25 +48,28 @@ ui <- shinyUI(
              fluidRow(
                column(3,
                       
-                      helpText("Shows different parameters related with happiness for the selected country"),
+                      helpText("Shows different parameters related with happiness for the selected countries"),
+                      helpText("Atleast 1 country and atmost 3 countries"),
                       selectizeInput(inputId = "try", 
-                                     label = "Enter the name of Country" , 
-                                     choices = data$Country, selected = NULL, multiple = FALSE )),
-              
-                          leafletOutput(outputId = "map")
-                          
-             ),
+                                     label = "Select Countries" , 
+                                     choices = WHR$Country, 
+                                     selected = NULL, 
+                                     multiple = T, 
+                                     options = list(maxItems = 3)  )),
+                        
+              column(9,
+                 leafletOutput(outputId = "map",height = 400))),
              br(),
              
              fluidRow(
                column(4, 
                            plotOutput(outputId = "graph")),
-               column(3, offset = 1,
-                           verticalLayout(helpText("Values of different parameters per \nyear",
-                                                   " for the selected country"), 
+               column(3, offset = 0.5,
+                           verticalLayout(helpText("How selected countries match against each other per year"), 
                                           tableOutput(outputId = "table1"))),
                column(2, offset = 1,
-                           tableOutput(outputId = "table")))
+                      verticalLayout(helpText("Which country is best for starting a business"),
+                                     tableOutput(outputId = "table"))))
                         
              ),
     
@@ -73,9 +77,9 @@ ui <- shinyUI(
             
              navlistPanel(
                tabPanel("Rank Comparision",
-                        plotOutput("top")),
+                        plotOutput("top", height = 500)),
                tabPanel("Parameter Comparision",
-                        plotOutput("top1")),
+                        plotOutput("top1", height = 650)),
                tabPanel("location",
                         leafletOutput("top2"))
              )
@@ -83,46 +87,51 @@ ui <- shinyUI(
     tabPanel("Bottom 6 : Countries with decreased rankings",
              navlistPanel(
                tabPanel("Rank Comparision",
-                        plotOutput("bot")),
+                        plotOutput("bot", height = 500)),
                tabPanel("Parameter Comparision",
-                        plotOutput("bot1")),
+                        plotOutput("bot1", height = 650)),
                tabPanel("location",
                         leafletOutput("bot2"))
                )
              ),
     tabPanel("Component 4")
   )
-)
+  )
 
 server <- function(input, output) {
   
-  output$intro <- renderText({
-    source("intro.R")
-  })
-  
-  
-  output$XY <- renderPlot({
+ output$XY <- renderPlot({
 
-    data5 %>%
+    WHR_map %>%
       filter(Year == as.character(input$Ye)) %>%
       group_by(Country) %>%
       arrange(order) %>%
       ungroup() %>%
       ggplot() +
-      geom_polygon(data = WorldMap,aes(x = long, y = lat, group = group), fill = "pink", alpha = 0.5 ) +
+      geom_polygon(data = WorldMap,aes(x = long, y = lat, group = group), color = "black", fill = "lightgrey", alpha = 0.5 ) +
       geom_polygon(aes(x = long, y = lat, group = group, fill = Happiness.Score),color = "black") +
-      scale_fill_gradient2(low = "white", high = "darkred")
+      scale_fill_gradient2(low = "white", mid = "orange", high = "darkred") +
+      theme(legend.position = "bottom", 
+            axis.title = element_blank(),
+            axis.text = element_blank(),
+            panel.background = element_blank(),
+            panel.grid = element_blank(), 
+            axis.ticks.length = unit(0, "cm"),
+            axis.ticks.margin = unit(0, "cm")) + xlab("") + ylab("") + 
+      ggtitle("Heatmap for Happiness Score accross the globe for the selected year") 
   })
   
   output$graph <- renderPlot({
 
-    data %>%
-      filter(Country ==  input$try) %>%
-      ggplot(aes(x= Year, y = Happiness.Score)) +
-      geom_line(color = "blue", linetype = "dashed") + 
-      geom_point(size = 3) + 
+    WHR %>%
+      filter(Country %in%  input$try) %>%
+      ggplot(aes(x= Year, y = Happiness.Score, group = Country, color = Country)) +
+      geom_line(size =2, linetype = "dashed") + 
+      geom_point(size = 5) + 
       geom_text(aes(label= Happiness.Rank), vjust = -1) +
-      scale_x_continuous(breaks = c(2015,2016,2017))
+      scale_x_continuous(breaks = c(2015,2016,2017)) + ylab("Happiness Score") +
+      ggtitle("Happiness Score with respect to year, with Happiness Rank per year") +
+      theme_bw() +theme(legend.position = "bottom")
 
   })
   
@@ -141,48 +150,59 @@ server <- function(input, output) {
   })
   
   output$table1 <- renderTable({
-    x <- data %>%
-      filter(Country == input$try) %>%
-      select(Year,Happiness.Rank ,Happiness.Score,Economy..GDP.per.Capita.:Generosity) %>%
+     WHR %>%
+      filter(Country %in% input$try) %>%
+      select(Year, Country,Happiness.Rank ,Happiness.Score,Economy..GDP.per.Capita.:Generosity) %>%
       gather(Happiness.Rank: Generosity,key = "Parameter", value = "Score") %>%
-      spread(key = Year, value = Score)
-      x[c(5,6,1:4,7:8),]
+      spread(key = Year, value = Score) %>%
+      arrange(factor(Parameter, levels = c("Happiness.Rank", "Happiness.Score",
+                                           "Economy..GDP.per.Capita.","Family","Freedom","Health..Life.Expectancy.",
+                                           "Trust..Government.Corruption.")))
+    
   })
   
   output$table <- renderTable({
-    data2 %>%
-      filter(Economy == input$try) %>%
-      select(Parameter,Rank)
+    easeofbiz %>%
+      filter(Economy %in% input$try) %>%
+      select(Economy,Parameter,Rank) %>%
+      spread(key = Economy, value = Rank) %>%
+      arrange(factor(Parameter, levels = c("Ease.of.Doing.Business.Rank","Dealing.with.Construction.Permits",
+                                           "Enforcing.Contracts", "Getting.Credit","Starting.a.Business","Getting.Electricity",
+                                           "Paying.Taxes","Protecting.Minority.Investors", "Registering.Property",
+                                           "Resolving.Insolvency","Trading.across.Borders")))
     
   }) 
   
   output$top <- renderPlot({
     
-      data4 %>%
+      WHR_TopBot %>%
         filter(Comment == "Top 6") %>%
         ggplot(aes(x=Country, y = Happiness.Score, group = as.factor(Year), fill = as.factor(Year))) +
       geom_col(position = position_dodge()) +
       geom_text(aes(label = Happiness.Rank), vjust = -1 ,position = position_dodge(width = 1)) +
       scale_fill_manual(values = c("red", "orange", "brown"),
                         guide = guide_legend(title = "Year (Happiness Rank at the top)",
-                                             direction = "horizontal")) +
+                                             direction = "horizontal"))  + theme_bw() +
+      ggtitle("Variation in Rank for the Top 6 performing countries") +
       theme(legend.position = "bottom")
       
     })
   
   output$top1 <- renderPlot({
       
-    data4 %>%
+    WHR_TopBot %>%
       gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
         filter(Comment == "Top 6") %>%
         arrange(Happiness.Rank)%>%
         ggplot(aes(x=Type, y= Score, group = as.factor(Year), fill = as.factor(Year))) +
         geom_col(position = position_dodge()) +
-        geom_text(aes(label = Happiness.Rank), hjust = -1 ,position = position_dodge(width = 1)) + 
+        geom_text(aes(label = Happiness.Rank), size = 2.5 , hjust = -1 ,position = position_dodge(width = 1)) + 
         scale_fill_manual(values = c("red", "orange", "brown"),
                           guide = guide_legend(title = "Year (Happiness Rank at the top)",
                                                direction = "horizontal")) +
-        coord_flip() + facet_wrap(~Country) + theme(legend.position = "bottom")
+        coord_flip() + facet_wrap(~Country)  +
+      ggtitle("Change in parameters for years 2015-17, for the 6 top performing countries") + 
+      theme(legend.position = "bottom")
     
   
   })
@@ -190,8 +210,8 @@ server <- function(input, output) {
   output$top2 <- renderLeaflet({
     
     
-    data4$Country <- as.character(data4$Country)
-    cnt <- data4 %>%
+    WHR_TopBot$Country <- as.character(WHR_TopBot$Country)
+    cnt <- WHR_TopBot %>%
       filter(Comment == "Top 6") %>%
       select(Country) %>%
       unique() 
@@ -210,28 +230,31 @@ server <- function(input, output) {
   
   output$bot <- renderPlot({
     
-      data4 %>%
+      WHR_TopBot %>%
         filter(Comment == "Bottom 6") %>%
         ggplot(aes(x=Country, y = Happiness.Score, group = as.factor(Year), fill = as.factor(Year))) +
         geom_col(position = position_dodge()) +
-      geom_text(aes(label = Happiness.Rank), hjust = -1 ,position = position_dodge(width = 1)) +
+      geom_text(aes(label = Happiness.Rank), vjust = -1 ,position = position_dodge(width = 1)) +
       scale_fill_manual(values = c("red", "orange", "brown"),
                         guide = guide_legend(title = "Year (Happiness Rank at the top)",
-                                             direction = "horizontal")) + 
+                                             direction = "horizontal")) +
+      ggtitle("Variation in Rank for the Bottom 6 performing countries") + theme_bw() + 
       theme(legend.position = "bottom")
     })
   output$bot1 <- renderPlot({
     
-      data4 %>%
+      WHR_TopBot %>%
         gather(Economy..GDP.per.Capita.:Generosity ,key = "Type", value = "Score", convert = T) %>%
         filter(Comment == "Bottom 6") %>%
         ggplot(aes(x=Type, y= Score, group = as.factor(Year), fill = as.factor(Year))) +
         geom_col(position = position_dodge()) +
-      geom_text(aes(label = Happiness.Rank), hjust = -1 ,position = position_dodge(width = 1)) +
+      geom_text(aes(label = Happiness.Rank), size = 2.5, hjust = -1 ,position = position_dodge(width = 1)) +
         scale_fill_manual(values = c("red", "orange", "brown"),
                           guide = guide_legend(title = "Year (Happiness Rank at the top)",
                                                direction = "horizontal")) +
-        coord_flip() + facet_wrap(~Country) + theme(legend.position = "bottom")
+        coord_flip() + facet_wrap(~Country) + theme_bw() +
+      ggtitle("Change in parameters for years 2015-17, for the 6 lowest performing countries") +
+      theme(legend.position = "bottom")
     
      
   })
@@ -239,8 +262,8 @@ server <- function(input, output) {
   output$bot2 <- renderLeaflet({
     
       
-      data4$Country <- as.character(data4$Country)
-      cnt <- data4 %>%
+      WHR_TopBot$Country <- as.character(WHR_TopBot$Country)
+      cnt <- WHR_TopBot %>%
         filter(Comment == "Bottom 6") %>%
         select(Country) %>%
         unique() 
