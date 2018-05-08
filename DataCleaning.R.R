@@ -90,7 +90,8 @@ happy_score <- happy_score[complete.cases(happy_score),]
 
 happy_score<- happy_score %>% 
   mutate(diff = happy_score$X2017  - happy_score$X2015) %>%
-  arrange(-diff) 
+  arrange(-diff) %>%
+  mutate(diff = round(diff, digits = 2))
 
 happy_score_top <- happy_score %>% 
   top_n(6)
@@ -100,7 +101,7 @@ happy_score_bot <- happy_score %>%
 happy_TopBot<-rbind(happy_score_bot,happy_score_top)
 
 WHR_2 <- WHR %>%
-  mutate(Comment = NA)
+  mutate(Comment = NA, Diff = NA)
 
 happy_score_bot$Region <- as.character(happy_score_bot$Region)
 happy_score_top$Region <- as.character(happy_score_top$Region)
@@ -110,6 +111,7 @@ for (a in 1:nrow(happy_score_bot)) {
   for(b in 1:nrow(WHR_2)){
     if( happy_score_bot[a,1] == WHR_2[b,1]){
       WHR_2[b,14] = "Bottom 6"
+      WHR_2[b,15] = happy_score_bot[a,6]
     }
     b <- b+1
   }
@@ -120,6 +122,7 @@ for (x in 1:nrow(happy_score_top)) {
   for(y in 1:nrow(WHR_2)){
     if(happy_score_top[x,1] == WHR_2[y,1]){
       WHR_2[y,14] = "Top 6"
+      WHR_2[y,15] = happy_score_top[x,6]
     }
     y <- y+1
   }
@@ -133,7 +136,65 @@ write.csv(WHR_2,"WHR_TopBot.csv")
 
 
 ### CSV file WHR_TopBot.csv has been saved to be further called in Shiny App
-  
+
+
+
+#################################################################################################
+
+
+happy_Rank <- WHR %>%
+  select(1,2,3,4) %>%
+  mutate(Year = gsub("20","X20",Year)) %>%
+  spread(key = Year, value = Happiness.Rank, convert = F )
+
+
+happy_Rank <- happy_Rank[complete.cases(happy_Rank),]
+
+happy_Rank<- happy_Rank %>% 
+  mutate(diff = happy_Rank$X2015  - happy_Rank$X2017) %>%
+  arrange(-diff) 
+
+happy_Rank_top <- happy_Rank %>% 
+  top_n(6)
+happy_Rank_bot <- happy_Rank %>% 
+  top_n(-6)
+happy_Rank_bot <- happy_Rank_bot[c(2:7),]
+
+happy_Rank_TopBot<-rbind(happy_Rank_bot,happy_Rank_top)
+
+WHR_Rank_2 <- WHR %>%
+  mutate(Comment = NA, Diff = NA)
+
+happy_Rank_bot$Region <- as.character(happy_Rank_bot$Region)
+happy_Rank_top$Region <- as.character(happy_Rank_top$Region)
+
+
+for (a in 1:nrow(happy_Rank_bot)) {
+  for(b in 1:nrow(WHR_Rank_2)){
+    if( happy_Rank_bot[a,1] == WHR_Rank_2[b,1]){
+      WHR_Rank_2[b,14] = "Bottom 6"
+      WHR_Rank_2[b,15] = happy_Rank_bot[a,6]
+    }
+    b <- b+1
+  }
+  b<- b+1
+}
+
+for (x in 1:nrow(happy_Rank_top)) {
+  for(y in 1:nrow(WHR_Rank_2)){
+    if(happy_Rank_top[x,1] == WHR_Rank_2[y,1]){
+      WHR_Rank_2[y,14] = "Top 6"
+      WHR_Rank_2[y,15] = happy_Rank_top[x,6]
+    }
+    y <- y+1
+  }
+  x<- x+1
+}
+
+WHR_Rank_2 <- WHR_Rank_2 %>%
+  filter(Comment %in% c("Bottom 6", "Top 6"))
+
+write.csv(WHR_Rank_2,"WHR_Rank_TopBot.csv")
 
 
 ##################################################################################################
