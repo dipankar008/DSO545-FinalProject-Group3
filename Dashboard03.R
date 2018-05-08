@@ -76,7 +76,7 @@ ui <- shinyUI(
     tabPanel("Top 6 Performing Countries",
             
              navlistPanel("Happiness Rank",
-                          
+
                           tabPanel("Rank Comparision",
                                    plotOutput("top10", height = 500)),
                           tabPanel("Parameter Comparision",
@@ -84,7 +84,6 @@ ui <- shinyUI(
                           tabPanel("location",
                                    leafletOutput("top12")),
                           "Happiness Score",
-                          
                           tabPanel("Rank Comparision",
                                    plotOutput("top20", height = 500)),
                           tabPanel("Parameter Comparision",
@@ -96,7 +95,6 @@ ui <- shinyUI(
             ),
     tabPanel("Bottom 6 Performing Countries",
              navlistPanel("Happiness Rank",
-                          
                           tabPanel("Rank Comparision",
                                    plotOutput("bot10", height = 500)),
                           tabPanel("Parameter Comparision",
@@ -104,14 +102,13 @@ ui <- shinyUI(
                           tabPanel("location",
                                    leafletOutput("bot12")),
                           "Happiness Score",
-                          
                           tabPanel("Rank Comparision",
                                    plotOutput("bot20", height = 500)),
                           tabPanel("Parameter Comparision",
                                    plotOutput("bot21", height = 650)),
                           tabPanel("location",
                                    leafletOutput("bot22"))
-             )
+                          )
              ),
     tabPanel("Component 4")
   )
