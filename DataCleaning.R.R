@@ -183,14 +183,34 @@ Geocodes <- html_nodes(Geocodes, "table") %>%
 
 Geocodes <- Geocodes[[1]]
 
-write.csv(Geocodes,"Geo.csv")
 
-Geocodes <- read.csv("Geo.csv")
+Geocodes$name <- str_replace(string = Geocodes$name, 
+                                pattern = "Macedonia [FYROM]", 
+                                replacement = "Macedonia")
+
+Geocodes$name <- str_replace(string = Geocodes$name, 
+                             pattern = "Congo [DRC]", 
+                             replacement = "Congo (Kinshasa)")
+
+Geocodes$name <- str_replace(string = Geocodes$name, 
+                             pattern = "Congo [Republic]", 
+                             replacement = "Congo (Brazzaville)")
+
+Geocodes$name <- str_replace(string = Geocodes$name, 
+                             pattern = "Côte d'Ivoire", 
+                             replacement = "Ivory Coast")
+
+Geocodes$name <- str_replace(string = Geocodes$name, 
+                             pattern = "Myanmar [Burma]", 
+                             replacement = "Myanmar")
+Geocodes[nrow(Geocodes)+1, ] = c(246, "NCY", 35.231634, 33.16595, "North Cyprus")
+
 
 Geocodes <- Geocodes %>%
   filter(name %in% WHR$Country)
 
 colnames(Geocodes)[which(names(Geocodes) == "name")] <- "Country"
+colnames(Geocodes)[which(names(Geocodes) == "country")] <- "Country Id"
 
 WHR_Geo <- merge(WHR, Geocodes, by = "Country")
 
@@ -198,7 +218,7 @@ write.csv(WHR_Geo,"WHR_Geo.csv")
 
 
 
-###################################################################################################
+#########################################################################################################
 
 map.world <- map_data(map="world")
 
@@ -246,6 +266,9 @@ for(x in 1:nrow(map.world)){
 
 
 write.csv(map.world,"WorldMap.csv")
+
+#############################################################################################################
+
 Worldmap <- read.csv("Worldmap.csv",stringsAsFactors = F)
 
 WHR$Country <- as.character(WHR$Country)

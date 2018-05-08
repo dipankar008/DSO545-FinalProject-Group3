@@ -49,7 +49,7 @@ ui <- shinyUI(
                column(3,
                       
                       helpText("Shows different parameters related with happiness for the selected countries"),
-                      helpText("Atleast 1 country and atmost 3 countries"),
+                      helpText("Select atleast 1 country or atmost 3 countries"),
                       selectizeInput(inputId = "try", 
                                      label = "Select Countries" , 
                                      choices = WHR$Country, 
@@ -108,10 +108,10 @@ server <- function(input, output) {
       arrange(order) %>%
       ungroup() %>%
       ggplot() +
-      geom_polygon(data = WorldMap,aes(x = long, y = lat, group = group), color = "black", fill = "lightgrey", alpha = 0.5 ) +
+      geom_polygon(data = WorldMap,aes(x = long, y = lat, group = group), color = "black", fill = "grey", alpha = 0.5 ) +
       geom_polygon(aes(x = long, y = lat, group = group, fill = Happiness.Score),color = "black") +
-      scale_fill_gradient2(low = "white", mid = "orange", high = "darkred") +
-      theme(legend.position = "bottom", 
+      scale_fill_gradient2(low = "white", high = "darkred") +
+      theme(legend.position = "bottom",
             axis.title = element_blank(),
             axis.text = element_blank(),
             panel.background = element_blank(),
