@@ -7,7 +7,8 @@ library(readxl)
 library(tidyr)
 library(rvest)
 library(stringr)
-
+library(rlist)
+library(rgdal)
 ### 1
 ### Creating a master file, which will include Happiness parameters of different countries with respect to their year
 ### Name of the file will be WHR, short for World Happiness Report
@@ -343,3 +344,6 @@ colnames(WorldMap_res)[which(names(WorldMap_res) == "region")] <- "Country"
 WHR_map <- merge(WHR, WorldMap_res, by="Country")
 
 write.csv(WHR_map,"WHR_map.csv")
+
+###############################################################################################################
+
