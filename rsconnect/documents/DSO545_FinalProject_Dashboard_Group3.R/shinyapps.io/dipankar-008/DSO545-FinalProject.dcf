@@ -5,9 +5,9 @@ account: dipankar-008
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 330670
-bundleId: 1363830
+bundleId: 1363876
 url: https://dipankar-008.shinyapps.io/DSO545-FinalProject/
-when: 1525823188.04624
+when: 1525826270.44557
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: SuperSeeded
+ignoredFiles: World Happiness Report(v.1) - edited by Dipankar.docx

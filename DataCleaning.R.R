@@ -200,10 +200,7 @@ write.csv(WHR_Rank_2,"WHR_Rank_TopBot.csv")
 
 ##################################################################################################
 
-# countrydata <- read.xls(xls = "C:/Users/dipan/OneDrive/Engineering Management/DSO 545/Project/DSO545-FinalProject/World Bank’s Ease of Doing Business Index-Dipankar.xlsx", sheet = 1, header = T)
-# 
-# read_excel("C:/Users/dipan/OneDrive/Engineering Management/DSO 545/Project/DSO545-FinalProject/World Bank’s Ease of Doing Business Index-Dipankar.xlsx")
-# 
+
 
 easeofbiz <- read.csv("EaseOfDoingBusiness.csv")
 easeofbiz$Region <- 1
